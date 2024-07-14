@@ -41,7 +41,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'DockerHub-Credential', toolName: 'docker') {
-                        sh "docker build -t awanmbandi/frontendservice:latest ."
+                        sh "docker build -t amlukong/frontendservice:latest ."
                     }
                 }
             }
@@ -49,7 +49,7 @@ pipeline {
         // Execute SCA/Dependency Test on Service Docker Image
         stage('Snyk SCA Test | Dependencies') {
             steps {
-                sh "${SNYK_HOME}/snyk-linux test --docker awanmbandi/frontendservice:latest || true" 
+                sh "${SNYK_HOME}/snyk-linux test --docker amlukong/frontendservice:latest || true" 
             }
         }
         // Push Service Image to DockerHub
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'DockerHub-Credential', toolName: 'docker') {
-                        sh "docker push awanmbandi/frontendservice:latest "
+                        sh "docker push amlukong/frontendservice:latest "
                     }
                 }
             }
@@ -73,15 +73,15 @@ pipeline {
                 }
             }
         }
-        // // Perform DAST Test on Application
-        // stage('ZAP Dynamic Testing | DAST') {
-        //     steps {
-        //         sshagent(['OWASP-Zap-Credential']) {
-        //             sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.59.158.38 "docker run -t zaproxy/zap-weekly zap-baseline.py -t http://18.216.48.123:30000/" || true'
-        //                                                 //JENKINS_PUBLIC_IP                                                  //EKS_WORKER_NODE_IP_ADDRESS:30000
-        //         }
-        //     }
-        // }
+        // Perform DAST Test on Application
+        stage('ZAP Dynamic Testing | DAST') {
+            steps {
+                sshagent(['OWASP-Zap-Credential']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@18.224.64.221 "docker run -t zaproxy/zap-weekly zap-baseline.py -t http://3.14.73.225:30000/" || true'
+                                                        //JENKINS_PUBLIC_IP                                                  //EKS_WORKER_NODE_IP_ADDRESS:30000
+                }
+            }
+        }
         // // Production Deployment Approval
         // stage('Approve Prod Deployment') {
         //     steps {
